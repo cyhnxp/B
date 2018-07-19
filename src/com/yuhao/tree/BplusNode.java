@@ -129,8 +129,8 @@ public class BplusNode <K extends Comparable<K>, V> implements Serializable {
             //分裂成左右两个节点
             String l=UUID.randomUUID().toString();
             String r=UUID.randomUUID().toString();
-            BplusNode<K,V> left = new BplusNode<K,V>(true,l,l);
-            BplusNode<K,V> right = new BplusNode<K,V>(true,r,r);
+            BplusNode<K,V> left = new BplusNode<K,V>(true,l,tree.path+l);
+            BplusNode<K,V> right = new BplusNode<K,V>(true,r,tree.path+r);
             //设置链接
             if (previousName != null){
 
@@ -195,7 +195,7 @@ public class BplusNode <K extends Comparable<K>, V> implements Serializable {
                 //如果是根节点
             }else {
                 isRoot = false;
-                BplusNode<K,V> parent = new BplusNode<K,V> (false, true,"root","root");
+                BplusNode<K,V> parent = new BplusNode<K,V> (false, true,tree.ROOT_NAME,tree.path+tree.ROOT_NAME);
                 tree.setRoot(parent);
                 left.parentName = parent.name;
                 right.parentName = parent.name;
@@ -296,8 +296,8 @@ public class BplusNode <K extends Comparable<K>, V> implements Serializable {
             //分裂成左右两个节点
             String l=UUID.randomUUID().toString();
             String r=UUID.randomUUID().toString();
-            BplusNode<K, V> left = new BplusNode<K, V>(false,l,l);
-            BplusNode<K, V> right = new BplusNode<K, V>(false,r,r);
+            BplusNode<K, V> left = new BplusNode<K, V>(false,l,tree.path+l);
+            BplusNode<K, V> right = new BplusNode<K, V>(false,r,tree.path+r);
             //左右两个节点子节点的长度
             int leftSize = (tree.getOrder() + 1) / 2 + (tree.getOrder() + 1) % 2;
             int rightSize = (tree.getOrder() + 1) / 2;
@@ -346,7 +346,7 @@ public class BplusNode <K extends Comparable<K>, V> implements Serializable {
                 String name=UUID.randomUUID().toString();
                 this.name=name;
                 this.path=this.name;
-                BplusNode<K, V> parent = new BplusNode<K, V>(false, true,"root","root");
+                BplusNode<K, V> parent = new BplusNode<K, V>(false, true,tree.ROOT_NAME,tree.path+tree.ROOT_NAME);
                 tree.setRoot(parent);
                 tree.setHeight(tree.getHeight() + 1);
                 left.parentName = parent.name;
@@ -383,8 +383,8 @@ public class BplusNode <K extends Comparable<K>, V> implements Serializable {
                 root.isRoot = true;
                 entries = null;
                 childrenName = null;
-                root.name="root";
-                root.path="root";
+                root.name=tree.ROOT_NAME;
+                root.path=tree.path+tree.ROOT_NAME;
                 save(this,tree);
                 save(root,tree);
                 return ;

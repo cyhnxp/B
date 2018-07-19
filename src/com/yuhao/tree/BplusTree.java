@@ -21,6 +21,11 @@ import java.util.*;
 
 public class BplusTree <K extends Comparable<K>, V>{
 
+
+    protected String ROOT_NAME="root";
+
+    protected String HASH_NAME="hash";
+
     /** 根节点 */
     protected BplusNode<K, V> root;
 
@@ -36,6 +41,9 @@ public class BplusTree <K extends Comparable<K>, V>{
     protected HashMap<String,String> hashMap;
 
     protected HashMap<String,BplusNode> tmp;
+
+    protected String path;
+
 
     public int i=0;
 
@@ -84,14 +92,13 @@ public class BplusTree <K extends Comparable<K>, V>{
 
     }
 
-    public BplusTree(){
+    public BplusTree(String path,int order){
+
+        this.order=order;
+        this.path=path;
 
         tmp=new HashMap<>();
-
-        File hashFile=new File("hash");
-        if (!hashFile.exists()){
-            hashFile.exists();
-        }
+        File hashFile=new File(this.path+this.HASH_NAME);
         try {
             ObjectInputStream hsah = new ObjectInputStream(new FileInputStream(hashFile));
             hashMap= (HashMap<String, String>) hsah.readObject();
@@ -104,12 +111,12 @@ public class BplusTree <K extends Comparable<K>, V>{
             hashMap=new HashMap<>();
         }
 
-        if (hashMap.get("root")==null){
-            root = new BplusNode<K, V>(true, true,"root","root");
+        if (hashMap.get(this.ROOT_NAME)==null){
+            root = new BplusNode<K, V>(true, true,this.ROOT_NAME,this.path+this.ROOT_NAME);
             head = root;
         }else {
 
-            File rootFile=new File(hashMap.get("root"));
+            File rootFile=new File(hashMap.get(this.ROOT_NAME));
             ObjectInputStream hsah=null;
             try {
                  hsah = new ObjectInputStream(new FileInputStream(rootFile));
@@ -126,12 +133,10 @@ public class BplusTree <K extends Comparable<K>, V>{
                 e.printStackTrace();
             }
             if (root==null){
-                new BplusNode<K, V>(true, true,"root","root");
+                new BplusNode<K, V>(true, true,this.ROOT_NAME,this.path+this.ROOT_NAME);
             }
-
         }
-
-        tmp.put("root",root);
+        tmp.put(this.ROOT_NAME,root);
 
     }
 
@@ -157,23 +162,12 @@ public class BplusTree <K extends Comparable<K>, V>{
 
     }
 
-    public BplusTree(int order) {
-        if (order < 3) {
-            System.out.print("order must be greater than 2");
-            System.exit(0);
-        }
-        this.order = order;
-        root = new BplusNode<K, V>(true, true,"root","root");
-        head = root;
-
-    }
-
     // 测试
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
 
 
-//       testRandomInsert();
+//      testRandomInsert(10000);
 
 
 
@@ -186,9 +180,7 @@ public class BplusTree <K extends Comparable<K>, V>{
 
 
     private static void testRandomRemove(String key) throws IOException, ClassNotFoundException {
-        BplusTree<String, String> tree = new BplusTree<String, String>();
-
-
+        BplusTree<String, String> tree = new BplusTree<String, String>("F:/b/",100);
 
         System.out.println("Begin random remove...");
         long current = System.currentTimeMillis();
@@ -207,7 +199,7 @@ public class BplusTree <K extends Comparable<K>, V>{
     }
 
     private static void testRandomSearch(String key) throws IOException, ClassNotFoundException {
-        BplusTree<String, String> tree = new BplusTree<String, String>();
+        BplusTree<String, String> tree = new BplusTree<String, String>("F:/b/",100);
 
         System.out.println("Begin random search...");
         long current = System.currentTimeMillis();
@@ -221,13 +213,16 @@ public class BplusTree <K extends Comparable<K>, V>{
 
     }
 
-    private static void testRandomInsert() throws IOException, ClassNotFoundException {
-        BplusTree<String, String> tree = new BplusTree<String, String>();
+    private static void testRandomInsert(int size) throws IOException, ClassNotFoundException {
+        BplusTree<String, String> tree = new BplusTree<String, String>("F:/b/",100);
         Random random = new Random();
 
         long current = System.currentTimeMillis();
 
-        tree.insertOrUpdate("280","9999999999999999");
+        for (int i = 0; i <size ; i++) {
+            tree.insertOrUpdate(random.nextInt(size)+"",UUID.randomUUID().toString());
+        }
+
 
         long duration = System.currentTimeMillis() - current;
         System.out.println("time elpsed for duration: " + duration);
@@ -241,7 +236,7 @@ public class BplusTree <K extends Comparable<K>, V>{
     }
 
     private void finish() throws IOException {
-        File file=new File("hash");
+        File file=new File(this.path+this.HASH_NAME);
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
         oos.writeObject(hashMap);
         oos.close();
